@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feliz Cumple</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fdf5f6;
+            --text-color: #5a3e36;
+            --accent-color: #c46c71;
+            --paper-bg: #f8f1e5;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Playfair Display', serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+            position: relative; 
+        }
+
+        /* --- CONTENEDORES PRINCIPALES --- */
+        #intro-screen, #main-content {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+            transition: opacity 0.8s ease;
+            position: relative;
+            z-index: 10; 
+        }
+
+        #main-content {
+            display: none;
+            justify-content: flex-start;
+            padding-top: 40px;
+            padding-bottom: 60px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* --- PANTALLA DE INICIO --- */
+        .date {
+            font-size: 1.2rem;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .title-phrase {
+            font-size: 2.2rem;
+            margin-bottom: 40px;
+        }
+
+        .btn {
+            background-color: var(--accent-color);
+            color: var(--white);
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(196, 108, 113, 0.4);
+            transition: transform 0.3s ease;
+            position: relative;
+            z-index: 20;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        /* --- CONTENIDO PRINCIPAL --- */
+        .main-title {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            margin-bottom: 50px;
+            font-style: italic;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* --- SECCIONES DE FOTOS --- */
+        .photo-section-wrapper {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 70px;
+            justify-content: space-between;
+            padding: 0 15px;
+        }
+
+        /* Control de asimetría */
+        .row-normal { flex-direction: row; }
+        .row-reverse { flex-direction: row-reverse; }
+
+        .side-text-container {
+            flex: 1;
+            padding: 0 15px;
+        }
+
+        .row-normal .side-text-container { text-align: left; }
+        .row-reverse .side-text-container { text-align: right; }
+
+        .side-text {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--accent-color);
+            line-height: 1.3;
+        }
+
+        /* --- EFECTO DE PILA DE FOTOS --- */
+        .carousel-wrapper {
+            position: relative;
+            width: 220px;
+            flex-shrink: 0;
+        }
+
+        .carousel-wrapper::before,
+        .carousel-wrapper::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--white);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border-radius: 2px;
+            z-index: 0;
+        }
+
+        .carousel-wrapper::before { transform: rotate(-5deg); }
+        .carousel-wrapper::after { transform: rotate(4deg); }
+
+        .carousel {
+            position: relative;
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            width: 100%;
+            z-index: 1;
+        }
+        
+        .carousel::-webkit-scrollbar { display: none; }
+
+        .polaroid {
+            flex: 0 0 100%;
+            scroll-snap-align: start;
+            background: var(--white);
+            padding: 10px 10px 15px 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .polaroid img {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            border-radius: 2px;
+            margin-bottom: 12px;
+        }
+
+        .polaroid-text {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            font-style: italic;
+            text-align: center;
+            opacity: 0.9;
+            height: 25px;
+        }
+
+        /* --- SOBRE Y TEXTO FINAL --- */
+        .envelope-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .envelope-wrapper {
+            margin-bottom: 40px;
+            cursor: pointer;
+            position: relative;
+            z-index: 20;
+        }
+
+        .envelope-instruction {
+            margin-bottom: 15px;
+            font-style: italic;
+            color: var(--accent-color);
+            font-size: 1.1rem;
+        }
+
+        .envelope {
+            width: 250px;
+            height: 150px;
+            background: #e8d5c4;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin: 0 auto;
+        }
+
+        .envelope::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            border-left: 125px solid transparent;
+            border-right: 125px solid transparent;
+            border-bottom: 75px solid #dcc5b0;
+            z-index: 3;
+        }
+
+        .envelope::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            border-left: 125px solid #e1ceba;
+            border-top: 75px solid transparent;
+            border-bottom: 75px solid transparent;
+            z-index: 2;
+        }
+
+        .flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            border-left: 125px solid transparent;
+            border-right: 125px solid transparent;
+            border-top: 80px solid #ecdcd0;
+            z-index: 4;
+            transform-origin: top;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .envelope-wrapper.open .flap {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        .wax-seal {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background: #8b0000;
+            border-radius: 50%;
+            z-index: 5;
+            box-shadow: inset 0 0 10px #5c0000, 0 2px 5px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            transition: opacity 0.3s;
+        }
+
+        .envelope-wrapper.open .wax-seal {
+            opacity: 0;
+        }
+
+        /* --- POEMA / MODAL CARTA --- */
+        .letter-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .letter-modal.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .old-paper {
+            width: 90%;
+            max-width: 400px;
+            background-color: #fdf5e6;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(139, 69, 19, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(139, 69, 19, 0.05) 0%, transparent 50%);
+            box-shadow: 
+                inset 0 0 40px rgba(139, 69, 19, 0.3),
+                inset 0px 0px 10px rgba(0,0,0,0.2),
+                0 10px 20px rgba(0,0,0,0.3);
+            padding: 30px 20px;
+            border-radius: 2px 15px 3px 20px / 15px 5px 20px 3px;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+            text-align: center;
+            border: 1px solid rgba(139, 69, 19, 0.2);
+        }
+
+        .prose-text {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            color: #3e2723;
+            text-align: left;
+        }
+
+        .poem-verse {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: #3e2723;
+            font-style: italic;
+        }
+
+        .btn-close {
+            background-color: transparent;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 8px 20px;
+            border-radius: 20px;
+            margin-top: 15px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        /* --- ANIMACIONES DE FONDO (GIRASOLES Y GLOBOS) --- */
+        .bg-element {
+            position: fixed;
+            top: -50px;
+            z-index: 1; 
+            pointer-events: none; 
+            user-select: none;
+            opacity: 0.6; 
+            animation: fallAndRotate linear forwards;
+        }
+
+        @keyframes fallAndRotate {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(110vh) rotate(360deg); 
+                opacity: 0;
+            }
+        }
+
+        /* Globos al abrir el sobre */
+        .envelope-balloon {
+            position: fixed;
+            animation: floatUp 2.5s ease-in forwards;
+            z-index: 50;
+            pointer-events: none;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100vh) scale(1.5); opacity: 0; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Contenedor para la animación de fondo permanente -->
+    <div id="background-animation-container"></div>
+
+    <!-- PANTALLA 1: INICIO -->
+    <div id="intro-screen">
+        <p class="date">5 de octubre de 2026</p>
+        <h1 class="title-phrase">Feliz cumple</h1>
+        <button class="btn" onclick="startExperience()">Te quiero loreth</button>
+    </div>
+
+    <!-- PANTALLA 2: CONTENIDO PRINCIPAL -->
+    <div id="main-content">
+        
+        <h1 class="main-title">Para ti</h1>
+
+        <!-- Sesion 1 -->
+        <div class="photo-section-wrapper row-normal">
+            <div class="side-text-container">
+                <span class="side-text">tu me cheres?</span>
+            </div>
+            <div class="carousel-wrapper">
+                <div class="carousel">
+                    <div class="polaroid">
+                        <img src="loreth1.jpg" alt="Foto 1">
+                        <span class="polaroid-text">ella sonriendo</span>
+                    </div>
+                    <div class="polaroid">
+                        <img src="loreth2.jpg" alt="Foto 2">
+                        <span class="polaroid-text">ella sonriendo</span>
+                    </div>
+                    <div class="polaroid">
+                        <img src="loreth3.jpg" alt="Foto 3">
+                        <span class="polaroid-text">ella sonriendo</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sesion 2 -->
+        <div class="photo-section-wrapper row-reverse">
+            <div class="side-text-container">
+                <span class="side-text">yo te quiero muto</span>
+            </div>
+            <div class="carousel-wrapper">
+                <div class="carousel">
+                    <div class="polaroid">
+                        <img src="loreth4.jpg" alt="Foto 4">
+                        <span class="polaroid-text">ella</span>
+                    </div>
+                    <div class="polaroid">
+                        <img src="loreth5.jpg" alt="Foto 5">
+                        <span class="polaroid-text">ella</span>
+                    </div>
+                    <div class="polaroid">
+                        <img src="loreth6.jpg" alt="Foto 6">
+                        <span class="polaroid-text">ella</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sesion 3 -->
+        <div class="photo-section-wrapper row-normal">
+            <div class="side-text-container">
+                <span class="side-text">cuanto? Infinito +1</span>
+            </div>
+            <div class="carousel-wrapper">
+                <div class="carousel">
+                    <div class="polaroid">
+                        <img src="loreth7.jpg" alt="Foto 7">
+                        <span class="polaroid-text">ella siendo ella</span>
+                    </div>
+                    <div class="polaroid">
+                        <img src="loreth8.jpg" alt="Foto 8">
+                        <span class="polaroid-text">ella siendo ella</span>
+                    </div>
+                    <div class="polaroid">
+                        <img src="loreth9.jpg" alt="Foto 9">
+                        <span class="polaroid-text">ella siendo ella</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sobre Dinámico -->
+        <div class="envelope-section">
+            <div class="envelope-wrapper" id="envelope" onclick="openEnvelope()">
+                <p class="envelope-instruction">Toca para abrir tu carta</p>
+                <div class="envelope">
+                    <div class="flap"></div>
+                    <div class="wax-seal">♥</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DEL POEMA -->
+    <div class="letter-modal" id="letter-modal">
+        <div class="old-paper">
+            
+            <div class="prose-text">
+                Hoy la distancia impone sus metros y sus silencios, pero hay presencias que no dependen del espacio físico para sentirse reales.<br><br>
+                Aunque no pueda estar hoy a tu lado para celebrar tu vida, sabes de sobra que no hay un solo día en que no cruces mis pensamientos, Hay huellas que no se borran con la calma ni con la distancia, por eso, en mi corazón siempre va a existir un espacio reservado para ti, intacto y sincero.<br><br>
+                Mentiría si dijera que no imaginé las cosas de otra manera, me habría encantado acompañarte en este y en cada uno de tus cumpleaños siendo algo más que un amigo, caminando a la par y compartiendo el peso y la alegría de tus días, pero la vida a veces nos mueve de sitio, y aprender a querer también significa aceptar los giros del camino.<br><br>
+                No se dio así, y está bien, porque el cariño verdadero no exige, comprende y permanece.<br><br>
+                Por eso, hoy mi único deseo es limpio y no pide nada a cambio, quiero que te comas el mundo, que abraces cada uno de tus proyectos y que veas cumplido cada sueño que alguna vez me contaste con ilusión, Mereces todo lo bonito que el destino te tenga guardado, la tranquilidad que buscas y una felicidad enorme, estés donde estés.
+            </div>
+
+            <div class="poem-verse">
+                𝑬𝒔𝒄𝒓𝒊𝒃í 𝒄𝒐𝒏 𝒎𝒊 𝒔𝒂𝒏𝒈𝒓𝒆 𝒆𝒍 𝒏𝒐𝒎𝒃𝒓𝒆 𝒍𝒐𝒓𝒆𝒕𝒉<br>
+                𝑬𝒏 𝒎𝒊 𝒄𝒐𝒓𝒂𝒛ó𝒏 𝒄𝒐𝒏 𝒍𝒂 𝒆𝒔𝒑𝒊𝒏𝒂 𝒅𝒆 𝒖𝒏 𝒄𝒍𝒂𝒗𝒆𝒍<br>
+                𝒀 𝒆𝒍 𝒔𝒖𝒂𝒗𝒆 𝒎𝒐𝒗𝒊𝒎𝒊𝒆𝒏𝒕𝒐 𝒅𝒆 𝒖𝒏 𝒃𝒂𝒍𝒍𝒆𝒕
+            </div>
+
+            <div class="poem-verse">
+                𝒆𝒏 𝒎𝒊 𝒄𝒐𝒓𝒂𝒛ó𝒏 𝒈𝒓𝒂𝒃é 𝒕𝒖 𝒏𝒐𝒎𝒃𝒓𝒆 𝒍𝒐𝒓𝒆𝒕𝒉<br>
+                𝑨𝒉𝒐𝒓𝒂 𝒚𝒂 𝒏𝒐 𝒕𝒊𝒆𝒏𝒆𝒔 𝒏𝒂𝒅𝒂 𝒒𝒖𝒆 𝒕𝒆𝒎𝒆𝒓<br>
+                𝒀 𝑺𝒊 𝒆𝒔 𝒏𝒆𝒄𝒆𝒔𝒂𝒓𝒊𝒐 𝒑𝒐𝒓 𝒕𝒊 𝑳𝒖𝒄𝒉𝒂𝒓𝒆
+            </div>
+
+            <button class="btn-close" onclick="closeEnvelope(event)">Cerrar carta</button>
+        </div>
+    </div>
+
+    <script>
+        // --- LOGICA PARA LA ANIMACION DE FONDO (Girasoles y Globos) ---
+        function createBackgroundElement() {
+            const container = document.getElementById('background-animation-container');
+            const element = document.createElement('div');
+            
+            // Decidir si es un globo (🎈) o un girasol (🌻)
+            const isSunflower = Math.random() > 0.5;
+            
+            element.classList.add('bg-element');
+            
+            if (isSunflower) {
+                element.innerHTML = '🌻';
+                element.style.fontSize = (Math.random() * 10 + 15) + 'px'; 
+            } else {
+                element.innerHTML = '🎈';
+                element.style.fontSize = (Math.random() * 10 + 15) + 'px'; 
+            }
+
+            element.style.left = Math.random() * 100 + 'vw';
+            
+            const fallDuration = Math.random() * 7 + 8;
+            element.style.animationDuration = fallDuration + 's';
+
+            container.appendChild(element);
+
+            setTimeout(() => {
+                element.remove();
+            }, fallDuration * 1000);
+        }
+
+        // --- INICIAR LA EXPERIENCIA ---
+        function startExperience() {
+            document.getElementById('intro-screen').style.display = 'none';
+            document.getElementById('main-content').style.display = 'flex';
+            window.scrollTo(0, 0);
+            
+            setInterval(createBackgroundElement, 600); 
+        }
+
+        // --- LOGICA DEL SOBRE ---
+        function openEnvelope() {
+            const envelope = document.getElementById('envelope');
+            if(!envelope.classList.contains('open')) {
+                envelope.classList.add('open');
+                createEnvelopeBalloons();
+                
+                setTimeout(() => {
+                    document.getElementById('letter-modal').classList.add('visible');
+                }, 800);
+            }
+        }
+
+        function closeEnvelope(event) {
+            event.stopPropagation();
+            document.getElementById('letter-modal').classList.remove('visible');
+            setTimeout(() => {
+                document.getElementById('envelope').classList.remove('open');
+            }, 300);
+        }
+
+        // --- ANIMACION DE GLOBOS AL ABRIR EL SOBRE ---
+        function createEnvelopeBalloons() {
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const balloon = document.createElement('div');
+                    balloon.classList.add('envelope-balloon');
+                    balloon.innerHTML = '🎈';
+                    balloon.style.left = Math.random() * 100 + 'vw';
+                    balloon.style.bottom = '20vh';
+                    balloon.style.fontSize = (Math.random() * 1.5 + 1.2) + 'rem';
+                    document.body.appendChild(balloon);
+
+                    setTimeout(() => {
+                        balloon.remove();
+                    }, 2500);
+                }, i * 80); 
+            }
+        }
+    </script>
+</body>
+</html>
